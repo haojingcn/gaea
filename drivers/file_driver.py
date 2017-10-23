@@ -74,8 +74,9 @@ def read_next_line(path, line_number=1, offset=0):
     :return:
     """
     context = open_file(path, 'r')
+    if offset < 0:
+        offset = 0
     try:
-        result = ''
         context.seek(offset)
         first_offset = context.tell()
         context.readline()
@@ -105,6 +106,8 @@ def read_item(path, item, line_number=1, offset=0):
     """
     # NOTICE: we assume context has no empty line
     context = open_file(path, 'r')
+    if offset < 0:
+        offset = 0
     try:
         result = ''
         line_nu = line_number

@@ -24,11 +24,17 @@ class InfluxDB(object):
         self.status = False
 
     def get_points(self, begin, end):
+        """
+
+        :param begin:
+        :param end:
+        :return: {query_table:{values:[], name:'', columns:[]}}，values is list with the value of tag keys and field keys, name is measurement, columns is tag keys and field keys
+        """
         #query_tables = ('meter', 'flow', 'port')
         query_tables = ['cpu_load_short']
         result = {}
         for query_table in query_tables:
-            query_cmd = "select * from %s where time > %d and time <= %d"%(query_table, begin, end)
+            query_cmd = "select * from {0} where time > {1} and time <= {2}".format(query_table, begin, end)
             print query_cmd
             points = {}
             try:

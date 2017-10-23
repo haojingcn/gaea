@@ -13,6 +13,7 @@ import argparse
 import ConfigParser
 import os
 import time
+import logging
 import pdb
 
 
@@ -32,9 +33,10 @@ def main():
         for option in conf_reader.options(section):
             config[section][option] = conf_reader.get(section, option)
 
-    serve_loop = Deamon('/var/lib/gaea/gaea.pid', stderr='/var/log/gaea.log')
+    serve_loop = Deamon('/var/lib/gaea/gaea.pid', stderr='/var/log/gaea_error.log', stdout='/var/log/gaea.log')
 
     log_parser = LogParser(config)
+    serve_loop.stop()
     serve_loop.start(run, log_parser)
 
 

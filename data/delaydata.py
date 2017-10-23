@@ -43,7 +43,7 @@ class DelayData(object):
         :param offset:
         :return:
         """
-        (line, line_number, line_offset) = self.driver.read_next_line(self.log_path, line_number, offset)
+        (line, line_number, line_offset) = self.driver.read_next_line(self.path, line_number, offset)
         if isinstance(line, str) and line.endswith('\n'):
             line = line[:-1]
         return line, line_number, line_offset

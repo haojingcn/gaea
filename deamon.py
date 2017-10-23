@@ -5,7 +5,6 @@ import signal
 
 
 class Deamon(object):
-
     def __init__(self, pidfile, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
         self.pidfile = pidfile
         self.stdin = stdin
@@ -22,7 +21,7 @@ class Deamon(object):
             if pid > 0:
                 sys.exit(0)
         except OSError, e:
-            sys.stderr.write("fork #1 failed: %d (%s)\n"%(e.errno, e.strerror))
+            sys.stderr.write("fork #1 failed: %d (%s)\n" % (e.errno, e.strerror))
             sys.exit(1)
 
         print os.getgid(), os.getpid()
@@ -36,7 +35,7 @@ class Deamon(object):
             if pid > 0:
                 sys.exit(0)
         except OSError, e:
-            sys.stderr.write("fork #2 failed: %d (%s)\n"(e.errno, e.strerror))
+            sys.stderr.write("fork #2 failed: {0} ({1})\n".format(e.errno, e.strerror))
             sys.exit(1)
 
         sys.stdin.flush()
@@ -51,7 +50,7 @@ class Deamon(object):
         os.dup2(self.se.fileno(), sys.stderr.fileno())
 
         pid = os.getpid()
-        file(self.pidfile, 'w+').write("%s\n"%pid)
+        file(self.pidfile, 'w+').write("%s\n" % pid)
 
     def start(self, func, *args, **kwargs):
         try:
@@ -111,6 +110,7 @@ def main():
     else:
         print "unknown command"
         sys.exit(2)
+
 
 if __name__ == '__main__':
     main()

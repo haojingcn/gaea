@@ -17,6 +17,7 @@ import re
 import pytz
 import calendar
 
+
 class LogParser(object):
     def __init__(self, config, *args, **kwargs):
         """
@@ -114,12 +115,13 @@ class LogParser(object):
             print delay_datas
 
             # update log meta file
-            meta = "inode=" + str(self.get_inode()) + " file=" + file_path + " line=" + str(flag_line)
+            meta = "inode={0} file={1} line={2} offset={3}".format(str(self.get_inode()), file_path, str(flag_line),
+                                                                   str(line_offset))
             if self.log_meta.get('', offset=0):
                 self.log_meta.delete('', offset=0)
             self.log_meta.put(meta, offset=-1)
             if delay_datas is not None:
-                for (k,v) in delay_datas.iteritems():
+                for (k, v) in delay_datas.iteritems():
                     if isinstance(v, list) and len(v) < 1:
                         continue
                     for delay_data in v:
@@ -142,7 +144,7 @@ class LogParser(object):
         if not isinstance(chars, str):
             return
         result = dict()
-        for (k,v) in filters.iteritems():
+        for (k, v) in filters.iteritems():
             temp = v.search(chars)
             if hasattr(temp, 'group'):
                 result[k] = temp.group()
@@ -174,7 +176,7 @@ class LogParser(object):
                 if node == host:
                     src_data = self.in_clis[host].get_points((t - 120) * 1000000000, t * 1000000000)
                 else:
-                    dest_data = self.in_clis[node].get_points((t-120)*1000000000, t*1000000000)
+                    dest_data = self.in_clis[node].get_points((t - 120) * 1000000000, t * 1000000000)
 
             temp_result = result[host]
             for (k, v) in dest_data.iteritems():
@@ -228,7 +230,8 @@ class LogParser(object):
                         item = item[0:-1]
                     if temp_data.endswith(','):
                         temp_data = temp_data[0:-1]
-                    item = item + " " + temp_data + " " + str(int(calendar.timegm(parser.parse(timestamp, fuzzy=True).astimezone(pytz.utc).timetuple())*1000000000))
+                    item = item + " " + temp_data + " " + str(int(calendar.timegm(
+                        parser.parse(timestamp, fuzzy=True).astimezone(pytz.utc).timetuple()) * 1000000000))
                     result[k].append(item)
 
         return result
@@ -237,12 +240,13 @@ class LogParser(object):
         if not isinstance(insert_data, dict) or len(insert_data) < 1:
             return
         result = {}
-        for node in self.config['influxdb']['nodes']:
-            if node['host'] in insert_data.keys():
-                flag = self.in_clis[node['host']].write_points(insert_data[node['host']])
+        for node in self.config['influxdb']['nodes'].split(','):
+            host, port = node.split(':')
+            if host in insert_data.keys():
+                flag = self.in_clis[host].write_points(insert_data[host])
                 # 有一条插入错误则全组都放入delay_datas中
                 if flag is False:
-                    result[node['host']] = insert_data[node['host']]
+                    result[host] = insert_data[host]
         return result
 
     def _process_with_delaydata(self, file_path, file_line, file_offset):
@@ -280,7 +284,8 @@ class LogParser(object):
                 flag_meta = self.delay_data.put(delay_data_item, offset=-1)
 
         # update the delay meta data
-        meta = "inode=" + str(self.delay_data.get_inode()) + " file=" + file_path + " line=" + str(flag_line)
+        meta = "inode={0} file={1} line={2} offset={3}".format(str(self.delay_data.get_inode()), file_path,
+                                                               str(flag_line), str(file_offset))
         if self.delay_meta.get('', offset=0)[0]:
             self.delay_meta.delete('', offset=0)
         self.delay_meta.put(meta, offset=-1)
@@ -313,7 +318,6 @@ class LogParser(object):
         if k != "offset":
             print "structure error, format data: inode=<>, file=<>, line=<>, offset=<>"
         self._process_with_delaydata(file_path, int(file_line), int(file_offset))
-
 
     # @task(interval=10s)
     def run(self):
